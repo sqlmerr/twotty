@@ -12,7 +12,11 @@ pub struct UserService {
 }
 
 impl UserService {
-    pub async fn create_user(&self, data: CreateUserSchema) -> UserSchema {
+    pub async fn create_user(&self, data: CreateUserSchema) -> Result<UserSchema, AppError> {
+        if let Some(_) = self.repository.find_one_by_username(&data.username).await {
+            return Err(AuthError::UsernameAlreadyOccupied.into());
+        }
+
         let hashed_password = hash_password(data.password);
         let response = self
             .repository
@@ -22,10 +26,10 @@ impl UserService {
             })
             .await;
 
-        UserSchema {
+        Ok(UserSchema {
             id: response.id,
             username: response.username,
-        }
+        })
     }
 
     pub async fn find_one_user(&self, id: &Uuid) -> Result<UserSchema, AppError> {

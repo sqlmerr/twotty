@@ -109,10 +109,10 @@ pub async fn login(
 pub async fn register_user(
     State(state): State<AppState>,
     ValidatedJson(user): ValidatedJson<CreateUserSchema>,
-) -> impl IntoResponse {
-    let user = state.user_service.create_user(user).await;
+) -> Result<impl IntoResponse, AppError> {
+    let user = state.user_service.create_user(user).await?;
     tracing::info!("Successfully created a user: {:?}", user);
-    (StatusCode::CREATED, Json(user))
+    Ok((StatusCode::CREATED, Json(user)))
 }
 
 #[utoipa::path(
@@ -136,7 +136,7 @@ pub async fn delete_user(
 
 #[utoipa::path(
     patch,
-    path = "/",
+    path = "",
     tag = "auth",
     request_body = UpdateUserSchema,
     responses(
