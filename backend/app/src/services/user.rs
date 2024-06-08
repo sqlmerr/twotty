@@ -2,8 +2,9 @@ use crate::repositories::user::{CreateUserDTO, UpdateUserDTO, UserRepository};
 use crate::repositories::Repository;
 use crate::schemas::auth::{AuthPayload, Claims};
 use crate::schemas::user::{CreateUserSchema, UpdateUserSchema, UserSchema};
-use crate::utils::auth::create_token;
+use crate::utils::auth::{create_token, hash_password, verify_password};
 use crate::utils::errors::{AppError, AuthError};
+use crate::Config;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -13,11 +14,12 @@ pub struct UserService {
 
 impl UserService {
     pub async fn create_user(&self, data: CreateUserSchema) -> UserSchema {
+        let hashed_password = hash_password(data.password);
         let response = self
             .repository
             .create(CreateUserDTO {
                 username: data.username,
-                password: data.password, // TODO: hash password
+                password: hashed_password,
             })
             .await;
 
@@ -51,9 +53,9 @@ impl UserService {
             .find_one_by_username(&payload.username)
             .await;
         if let Some(user) = user {
-            if user.password != payload.password {
+            if !verify_password(payload.password, user.password) {
                 return Err(AuthError::WrongCredentials);
-            } // TODO: decode password
+            }
 
             let claims = Claims::new(payload.username);
             let token = create_token(&claims).map_err(|_| AuthError::TokenCreation)?;
@@ -97,10 +99,17 @@ impl UserService {
                 id: *id,
             });
         }
+        let password;
+
+        if let Some(pass) = data.password {
+            password = Some(hash_password(pass))
+        } else {
+            password = data.password
+        }
 
         let dto = UpdateUserDTO {
             username: data.username,
-            password: data.password, // TODO: hash password
+            password,
         };
         self.repository.update(id, dto).await;
         Ok(())

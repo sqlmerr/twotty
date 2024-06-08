@@ -13,6 +13,7 @@ use validator::ValidationErrors;
 #[derive(Debug, ToSchema)]
 pub struct APIError {
     pub message: String,
+    #[schema(value_type = u16)]
     pub status_code: StatusCode,
 }
 
@@ -47,6 +48,8 @@ pub enum AuthError {
     TokenCreation,
     #[error("Invalid token")]
     InvalidToken,
+    #[error("")]
+    UsernameAlreadyOccupied,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -71,12 +74,16 @@ impl IntoResponse for AppError {
                 StatusCode::BAD_REQUEST,
                 format!("Validation errors: [{}", self).replace('\n', ","),
             ),
-            Self::AuthError(e) => match e {
-                AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, e.to_string()),
-                AuthError::MissingCredentials => (StatusCode::UNAUTHORIZED, e.to_string()),
-                AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
-                AuthError::InvalidToken => (StatusCode::BAD_REQUEST, e.to_string()),
-            },
+            Self::AuthError(e) => {
+                let error = e.to_string();
+                match e {
+                    AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, error),
+                    AuthError::MissingCredentials => (StatusCode::UNAUTHORIZED, error),
+                    AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, error),
+                    AuthError::InvalidToken => (StatusCode::BAD_REQUEST, error),
+                    AuthError::UsernameAlreadyOccupied => (StatusCode::FORBIDDEN, error),
+                }
+            }
             _ => (StatusCode::BAD_REQUEST, message),
         };
 
