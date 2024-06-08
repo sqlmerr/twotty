@@ -1,0 +1,5 @@
+target
+.idea/
+
+db.sqlite
+.env

@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "app",
+    "migration"
+]
+resolver = "2"
