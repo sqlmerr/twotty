@@ -4,7 +4,6 @@ use crate::schemas::auth::{AuthPayload, Claims};
 use crate::schemas::user::{CreateUserSchema, UpdateUserSchema, UserSchema};
 use crate::utils::auth::{create_token, hash_password, verify_password};
 use crate::utils::errors::{AppError, AuthError};
-use crate::Config;
 use uuid::Uuid;
 
 #[derive(Clone)]

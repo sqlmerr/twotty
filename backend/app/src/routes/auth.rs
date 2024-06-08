@@ -8,7 +8,7 @@ use axum::{
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::schemas::auth::Claims;
+use super::auth_middleware;
 use crate::{
     schemas::{
         auth::{AuthBody, AuthPayload},
@@ -52,7 +52,7 @@ pub(super) struct AuthDoc;
         ("http" = [])
     )
 )]
-pub async fn get_all_users(_claims: Claims, State(state): State<AppState>) -> impl IntoResponse {
+pub async fn get_all_users(State(state): State<AppState>) -> impl IntoResponse {
     let tasks = state.user_service.find_all_users().await;
     Json(json!(tasks))
 }
@@ -73,7 +73,6 @@ pub async fn get_all_users(_claims: Claims, State(state): State<AppState>) -> im
     )
 )]
 pub async fn get_user(
-    _claims: Claims,
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<impl IntoResponse, AppError> {
@@ -137,16 +136,16 @@ pub async fn delete_user(
 
 #[utoipa::path(
     patch,
-    path = "/{id}",
+    path = "/",
     tag = "auth",
-    request_body=UpdateUserSchema,
+    request_body = UpdateUserSchema,
     responses(
         (status = 200, description = "User edited successfully"),
         (status = 404, description = "User not found")
     ),
-    params(
-        ("id" = Uuid, Path, description = "User id from database")
-    )
+    security(
+        ("http" = [])
+    ),
 )]
 pub async fn update_user(
     State(state): State<AppState>,
@@ -159,7 +158,10 @@ pub async fn update_user(
 
 pub fn init_users_router() -> Router<AppState> {
     Router::new()
-        .route("/", get(get_all_users))
+        .route(
+            "/",
+            get(get_all_users).layer(axum::middleware::from_fn(auth_middleware)),
+        )
         .route("/:id", get(get_user).delete(delete_user).patch(update_user))
         .route("/login", post(login))
         .route("/register", post(register_user))
