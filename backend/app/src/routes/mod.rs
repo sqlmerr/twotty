@@ -20,6 +20,8 @@ use crate::{repositories, services, utils, Config};
 
 use crate::utils::auth::decode_token;
 use auth::AuthDoc;
+use crate::schemas::post::PostSchema;
+use crate::schemas::user::UserSchema;
 
 pub async fn init_routers(settings: &Config) -> Router {
     #[derive(OpenApi)]
@@ -98,12 +100,13 @@ pub async fn auth_middleware(
     let token_data = decode_token(token).map_err(|_| AuthError::InvalidToken)?;
     request.extensions_mut().insert(token_data.claims.clone());
 
-    let user = state
+    let user: UserSchema = state
         .user_service
         .repository
         .find_one_by_username(&token_data.claims.sub)
         .await
-        .ok_or(AuthError::InvalidToken)?;
+        .ok_or(AuthError::InvalidToken)?
+        .into();
     request.extensions_mut().insert(user);
 
     Ok(next.run(request).await)

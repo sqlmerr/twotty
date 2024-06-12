@@ -1,6 +1,7 @@
 use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
+use crate::schemas::user::UserSchema;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct User {
@@ -14,6 +15,15 @@ impl Default for User {
         Self {
             id: Uuid::new_v4(),
             ..Default::default()
+        }
+    }
+}
+
+impl Into<UserSchema> for User {
+    fn into(self) -> UserSchema {
+        UserSchema {
+            id: self.id,
+            username: self.username,
         }
     }
 }

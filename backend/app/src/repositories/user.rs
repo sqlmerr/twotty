@@ -24,10 +24,11 @@ impl Repository for UserRepository {
     type Id = Uuid;
     type CreateDTO = CreateUserDTO;
     type UpdateDTO = UpdateUserDTO;
+    type FindAllParams = ();
 
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
-        let task = sqlx::query!(
+        sqlx::query!(
             r#"INSERT INTO "user" VALUES ($1, $2, $3)"#,
             id,
             data.username,
@@ -50,7 +51,7 @@ impl Repository for UserRepository {
             .unwrap()
     }
 
-    async fn find_all(&self) -> Vec<Self::Model> {
+    async fn find_all(&self, _params: Self::FindAllParams) -> Vec<Self::Model> {
         sqlx::query_as!(user::User, r#"SELECT * FROM "user""#)
             .fetch_all(&self.pool)
             .await

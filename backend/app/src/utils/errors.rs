@@ -56,6 +56,10 @@ pub enum AuthError {
 pub enum AppError {
     #[error("{entity} with id {id} not found")]
     EntityNotFound { entity: &'static str, id: Uuid },
+    #[error("Text too long (maximum 256 symbols)")]
+    TextTooLong,
+    #[error("You don't have permission to do this")]
+    CantDoThis,
     #[error(transparent)]
     ValidationError(#[from] ValidationErrors),
     #[error(transparent)]
