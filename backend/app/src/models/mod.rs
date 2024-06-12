@@ -1,2 +1,2 @@
-pub mod task;
+pub mod post;
 pub mod user;

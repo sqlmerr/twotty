@@ -1,5 +1,3 @@
-use migration::{Migrator, MigratorTrait};
-
 pub mod config;
 pub mod db;
 pub mod models;
@@ -29,7 +27,7 @@ async fn main() {
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
     let db = db::db_connection(&settings).await.unwrap();
-    Migrator::up(&db, None).await.unwrap(); // Run migrations
+    sqlx::migrate!("../migrations").run(&db).await.unwrap();
 
     let app = routes::init_routers(&settings).await;
 

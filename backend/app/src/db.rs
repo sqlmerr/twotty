@@ -1,8 +1,10 @@
 use crate::Config;
-use sea_orm::{Database, DbConn, DbErr};
+use sqlx::postgres::{PgPool, PgPoolOptions};
 
-pub async fn db_connection(settings: &Config) -> Result<DbConn, DbErr> {
-    let db = Database::connect(&settings.database_url).await.unwrap();
+pub async fn db_connection(settings: &Config) -> Result<PgPool, sqlx::Error> {
+    let pull = PgPoolOptions::new()
+        .connect(settings.database_url.as_str())
+        .await?;
 
-    Ok(db)
+    Ok(pull)
 }

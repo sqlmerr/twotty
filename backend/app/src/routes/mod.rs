@@ -52,9 +52,9 @@ pub async fn init_routers(settings: &Config) -> Router {
         }
     }
 
-    let db_connection = db_connection(settings).await.unwrap();
+    let pool = db_connection(settings).await.unwrap();
 
-    let user_repository = repositories::user::UserRepository { db_connection };
+    let user_repository = repositories::user::UserRepository { pool };
     let user_service = services::user::UserService {
         repository: user_repository,
     };

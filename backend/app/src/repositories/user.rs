@@ -1,6 +1,6 @@
 use super::Repository;
 use crate::models::user;
-use sea_orm::{ActiveModelTrait, ColumnTrait, DbConn, EntityTrait, QueryFilter, Set};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct CreateUserDTO {
@@ -15,61 +15,74 @@ pub struct UpdateUserDTO {
 
 #[derive(Clone)]
 pub struct UserRepository {
-    pub db_connection: DbConn,
+    pub pool: PgPool,
 }
 
 #[async_trait::async_trait]
 impl Repository for UserRepository {
-    type Model = user::Model;
+    type Model = user::User;
     type Id = Uuid;
     type CreateDTO = CreateUserDTO;
     type UpdateDTO = UpdateUserDTO;
 
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
-        let db = &self.db_connection;
-        let task = user::ActiveModel {
-            id: Set(Uuid::new_v4()),
-            username: Set(data.username),
-            password: Set(data.password),
-            ..Default::default()
-        };
-        task.insert(db).await.unwrap()
+        let id = Uuid::new_v4();
+        let task = sqlx::query!(
+            r#"INSERT INTO "user" VALUES ($1, $2, $3)"#,
+            id,
+            data.username,
+            data.password
+        )
+        .execute(&self.pool)
+        .await
+        .unwrap();
+        Self::Model {
+            id,
+            username: data.username,
+            password: data.password,
+        }
     }
 
     async fn find_one(&self, id: &Self::Id) -> Option<Self::Model> {
-        let db = &self.db_connection;
-        user::Entity::find_by_id(id.to_owned())
-            .one(db)
+        let user = sqlx::query_as!(user::User, r#"SELECT * FROM "user" WHERE id = $1"#, id)
+            .fetch_optional(&self.pool)
             .await
-            .unwrap()
+            .unwrap();
+        user
     }
 
     async fn find_all(&self) -> Vec<Self::Model> {
-        let db = &self.db_connection;
-        user::Entity::find().all(db).await.unwrap()
+        let users = sqlx::query_as!(user::User, r#"SELECT * FROM "user""#)
+            .fetch_all(&self.pool)
+            .await
+            .unwrap();
+        users
     }
 
     async fn delete(&self, id: &Self::Id) {
-        let db = &self.db_connection;
-        user::Entity::delete_by_id(id.to_owned())
-            .exec(db)
+        sqlx::query!(r#"DELETE FROM "user" WHERE id = $1"#, id)
+            .execute(&self.pool)
             .await
             .unwrap();
     }
 
     async fn update(&self, id: &Self::Id, data: Self::UpdateDTO) {
-        let db = &self.db_connection;
         let user = self.find_one(id).await;
 
-        let mut user: user::ActiveModel = user.unwrap().into();
+        let mut user = user.unwrap();
         if let Some(username) = data.username {
-            user.username = Set(username)
+            user.username = username;
         }
         if let Some(password) = data.password {
-            user.password = Set(password);
+            user.password = password;
         }
 
-        user.update(db).await.unwrap();
+        sqlx::query!(
+            r#"UPDATE "user" SET username = $2, password = $3 WHERE id = $1"#,
+            user.id,
+            user.username,
+            user.password
+        );
     }
 }
 
@@ -78,10 +91,12 @@ impl UserRepository {
         &self,
         username: &String,
     ) -> Option<<UserRepository as Repository>::Model> {
-        let db = &self.db_connection;
-        user::Entity::find()
-            .filter(user::Column::Username.eq(username))
-            .one(db)
+        sqlx::query_as!(
+            user::User,
+            r#"SELECT * FROM "user" WHERE username = $1"#,
+            username
+        )
+            .fetch_optional(&self.pool)
             .await
             .unwrap()
     }

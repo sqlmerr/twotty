@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "app",
-    "migration"
+    "app"
 ]
 resolver = "2"

@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 pub mod user;
 
 #[async_trait::async_trait]
 pub trait Repository: Send + Sync {
-    type Model: sea_orm::entity::ModelTrait;
+    type Model: Serialize;
     type Id;
     type CreateDTO;
     type UpdateDTO;
