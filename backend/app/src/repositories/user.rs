@@ -44,19 +44,17 @@ impl Repository for UserRepository {
     }
 
     async fn find_one(&self, id: &Self::Id) -> Option<Self::Model> {
-        let user = sqlx::query_as!(user::User, r#"SELECT * FROM "user" WHERE id = $1"#, id)
+        sqlx::query_as!(user::User, r#"SELECT * FROM "user" WHERE id = $1"#, id)
             .fetch_optional(&self.pool)
             .await
-            .unwrap();
-        user
+            .unwrap()
     }
 
     async fn find_all(&self) -> Vec<Self::Model> {
-        let users = sqlx::query_as!(user::User, r#"SELECT * FROM "user""#)
+        sqlx::query_as!(user::User, r#"SELECT * FROM "user""#)
             .fetch_all(&self.pool)
             .await
-            .unwrap();
-        users
+            .unwrap()
     }
 
     async fn delete(&self, id: &Self::Id) {
@@ -96,8 +94,8 @@ impl UserRepository {
             r#"SELECT * FROM "user" WHERE username = $1"#,
             username
         )
-            .fetch_optional(&self.pool)
-            .await
-            .unwrap()
+        .fetch_optional(&self.pool)
+        .await
+        .unwrap()
     }
 }

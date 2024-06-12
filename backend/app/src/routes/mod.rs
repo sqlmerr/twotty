@@ -1,7 +1,7 @@
 mod auth;
 
 use axum::body::Body;
-use axum::extract::Request;
+use axum::extract::{Request, State};
 use axum::http::{Response, StatusCode};
 use axum::middleware::Next;
 use axum::response::IntoResponse;
@@ -70,7 +70,7 @@ pub async fn init_routers(settings: &Config) -> Router {
             "/",
             get(|| async { Json(json!({"message": "Hello world"})) }),
         )
-        .nest("/auth", auth::init_users_router())
+        .nest("/auth", auth::init_users_router(state.clone()))
         .fallback(handler_404)
         .with_state(state)
 }
@@ -82,17 +82,29 @@ async fn handler_404() -> impl IntoResponse {
     )
 }
 
-pub async fn auth_middleware(mut request: Request, next: Next) -> Result<Response<Body>, AppError> {
+pub async fn auth_middleware(
+    State(state): State<AppState>,
+    mut request: Request,
+    next: Next,
+) -> Result<Response<Body>, AppError> {
     let auth_header = match request.headers_mut().get(axum::http::header::AUTHORIZATION) {
         None => return Err(AuthError::InvalidToken.into()),
         Some(header) => header.to_str().map_err(|_| AuthError::InvalidToken)?,
     };
 
     let mut header = auth_header.split_whitespace();
-    let (token_type, token) = (header.next(), header.next().ok_or(AuthError::InvalidToken)?);
+    let (_token_type, token) = (header.next(), header.next().ok_or(AuthError::InvalidToken)?);
 
     let token_data = decode_token(token).map_err(|_| AuthError::InvalidToken)?;
-    request.extensions_mut().insert(token_data.claims);
+    request.extensions_mut().insert(token_data.claims.clone());
+
+    let user = state
+        .user_service
+        .repository
+        .find_one_by_username(&token_data.claims.sub)
+        .await
+        .ok_or(AuthError::InvalidToken)?;
+    request.extensions_mut().insert(user);
 
     Ok(next.run(request).await)
 }

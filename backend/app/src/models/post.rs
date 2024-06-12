@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Post {
     pub id: Uuid,
     pub text: String,
-    pub author_id: Uuid
+    pub author_id: Uuid,
 }
 
 impl Post {
@@ -14,7 +14,7 @@ impl Post {
         Self {
             id: Uuid::new_v4(),
             text,
-            author_id
+            author_id,
         }
     }
 }

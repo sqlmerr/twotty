@@ -41,6 +41,21 @@ use crate::{
 )]
 pub(super) struct AuthDoc;
 
+pub fn init_users_router(state: AppState) -> Router<AppState> {
+    let auth_middleware = axum::middleware::from_fn_with_state(state, auth_middleware);
+    Router::new()
+        .route("/", get(get_all_users).layer(auth_middleware.clone()))
+        .route(
+            "/:id",
+            get(get_user)
+                .delete(delete_user)
+                .patch(update_user)
+                .layer(auth_middleware),
+        )
+        .route("/login", post(login))
+        .route("/register", post(register_user))
+}
+
 #[utoipa::path(
     get,
     path = "",
@@ -124,6 +139,9 @@ pub async fn register_user(
     ),
     params(
         ("id" = Uuid, Path, description = "User id from database")
+    ),
+    security(
+        ("http" = [])
     )
 )]
 pub async fn delete_user(
@@ -136,12 +154,15 @@ pub async fn delete_user(
 
 #[utoipa::path(
     patch,
-    path = "",
+    path = "/{id}",
     tag = "auth",
     request_body = UpdateUserSchema,
     responses(
         (status = 200, description = "User edited successfully"),
         (status = 404, description = "User not found")
+    ),
+    params(
+        ("id" = Uuid, Path, description = "User id from database")
     ),
     security(
         ("http" = [])
@@ -154,15 +175,4 @@ pub async fn update_user(
 ) -> Result<impl IntoResponse, AppError> {
     state.user_service.update_user(&id, body).await?;
     Ok(Json(json!({ "message": "Task updated!" })))
-}
-
-pub fn init_users_router() -> Router<AppState> {
-    Router::new()
-        .route(
-            "/",
-            get(get_all_users).layer(axum::middleware::from_fn(auth_middleware)),
-        )
-        .route("/:id", get(get_user).delete(delete_user).patch(update_user))
-        .route("/login", post(login))
-        .route("/register", post(register_user))
 }
