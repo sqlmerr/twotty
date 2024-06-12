@@ -15,13 +15,15 @@ RUN cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
 
+ENV SQLX_OFFLINE=true
+
 RUN cargo build --release
 
 FROM gcr.io/distroless/cc AS runtime
 
 
 COPY --from=builder /app/.env .env
-COPY --from=builder /app/target/release/axum-template axum-template
+COPY --from=builder /app/target/release/twotty twotty
 
 EXPOSE 8000
-CMD ["./axum-template"]
+CMD ["./twotty"]
