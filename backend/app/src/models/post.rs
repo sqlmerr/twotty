@@ -1,7 +1,7 @@
 use uuid::Uuid;
 
-use serde::{Deserialize, Serialize};
 use crate::schemas::post::PostSchema;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Post {

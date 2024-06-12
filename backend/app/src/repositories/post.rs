@@ -32,7 +32,7 @@ impl Repository for PostRepository {
 
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
-        let task = sqlx::query!(
+        sqlx::query!(
             r#"INSERT INTO "post" VALUES ($1, $2, $3)"#,
             id,
             data.text,

@@ -1,10 +1,10 @@
 use serde::Serialize;
 
-pub mod user;
 pub mod post;
+pub mod user;
 
 #[async_trait::async_trait]
-pub(super) trait Repository: Send + Sync {
+pub trait Repository: Send + Sync {
     type Model: Serialize;
     type Id;
     type CreateDTO;

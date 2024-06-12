@@ -70,7 +70,7 @@ impl UserService {
     }
 
     pub async fn find_all_users(&self) -> Vec<UserSchema> {
-        let response = self.repository.find_all().await;
+        let response = self.repository.find_all(()).await;
         let tasks: Vec<UserSchema> = response
             .iter()
             .map(|t| UserSchema {

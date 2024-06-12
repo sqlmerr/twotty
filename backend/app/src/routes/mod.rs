@@ -1,4 +1,5 @@
 mod auth;
+mod posts;
 
 use axum::body::Body;
 use axum::extract::{Request, State};
@@ -18,17 +19,18 @@ use crate::state::AppState;
 use crate::utils::errors::{APIError, AppError, AuthError};
 use crate::{repositories, services, utils, Config};
 
+use crate::schemas::user::UserSchema;
 use crate::utils::auth::decode_token;
 use auth::AuthDoc;
-use crate::schemas::post::PostSchema;
-use crate::schemas::user::UserSchema;
+use posts::PostsDoc;
 
 pub async fn init_routers(settings: &Config) -> Router {
     #[derive(OpenApi)]
     #[openapi(
         modifiers(&SecurityAddon),
         nest(
-            (path = "/auth", api = AuthDoc)
+            (path = "/auth", api = AuthDoc),
+            (path = "/posts", api = PostsDoc)
         ),
         components(schemas(
             utils::errors::APIError
@@ -56,12 +58,18 @@ pub async fn init_routers(settings: &Config) -> Router {
 
     let pool = db_connection(settings).await.unwrap();
 
-    let user_repository = repositories::user::UserRepository { pool };
+    let user_repository = repositories::user::UserRepository { pool: pool.clone() };
+    let post_repository = repositories::post::PostRepository { pool: pool.clone() };
+
     let user_service = services::user::UserService {
         repository: user_repository,
     };
+    let post_service = services::post::PostService {
+        repository: post_repository,
+    };
     let state = AppState {
         user_service,
+        post_service,
         config: settings.clone(),
     };
 
@@ -73,6 +81,7 @@ pub async fn init_routers(settings: &Config) -> Router {
             get(|| async { Json(json!({"message": "Hello world"})) }),
         )
         .nest("/auth", auth::init_users_router(state.clone()))
+        .nest("/posts", posts::init_posts_router(state.clone()))
         .fallback(handler_404)
         .with_state(state)
 }

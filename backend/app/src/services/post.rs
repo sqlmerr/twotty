@@ -1,4 +1,3 @@
-use crate::models::post::Post;
 use crate::repositories::post::{CreatePostDTO, PostFindAllParams, PostRepository, UpdatePostDTO};
 use crate::repositories::Repository;
 use crate::schemas::post::{CreatePostSchema, PostSchema, UpdatePostSchema};
@@ -41,7 +40,9 @@ impl PostService {
     pub async fn find_all_posts(&self, author_id: &Uuid) -> Vec<PostSchema> {
         let posts = self
             .repository
-            .find_all(PostFindAllParams { author_id: *author_id })
+            .find_all(PostFindAllParams {
+                author_id: *author_id,
+            })
             .await;
         posts.iter().map(|post| post.into()).collect()
     }
@@ -49,13 +50,18 @@ impl PostService {
     pub async fn delete_post(&self, id: &Uuid, user_id: &Uuid) -> Result<(), AppError> {
         let post = self.find_one_post(&id).await?;
         if post.author_id != *user_id {
-            return Err(AppError::CantDoThis)
+            return Err(AppError::CantDoThis);
         }
         self.repository.delete(&id).await;
         Ok(())
     }
 
-    pub async fn update_post(&self, id: &Uuid, data: UpdatePostSchema, author_id: &Uuid) -> Result<(), AppError> {
+    pub async fn update_post(
+        &self,
+        id: &Uuid,
+        data: UpdatePostSchema,
+        author_id: &Uuid,
+    ) -> Result<(), AppError> {
         let post = self.find_one_post(&id).await?;
         if post.author_id != *author_id {
             return Err(AppError::CantDoThis);

@@ -81,7 +81,10 @@ impl Repository for UserRepository {
             user.id,
             user.username,
             user.password
-        );
+        )
+        .execute(&self.pool)
+        .await
+        .unwrap();
     }
 }
 

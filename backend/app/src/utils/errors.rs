@@ -88,6 +88,7 @@ impl IntoResponse for AppError {
                     AuthError::UsernameAlreadyOccupied => (StatusCode::FORBIDDEN, error),
                 }
             }
+            Self::CantDoThis => (StatusCode::FORBIDDEN, message),
             _ => (StatusCode::BAD_REQUEST, message),
         };
 
