@@ -32,8 +32,8 @@ impl Repository for PostRepository {
 
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
-        let date = sqlx::query!(
-            r#"INSERT INTO "post" (id, text, author_id) VALUES ($1, $2, $3) RETURNING created_at"#,
+        let response = sqlx::query!(
+            r#"INSERT INTO "post" (id, text, author_id) VALUES ($1, $2, $3) RETURNING created_at, edited"#,
             id,
             data.text,
             data.author_id
@@ -41,11 +41,12 @@ impl Repository for PostRepository {
         .fetch_one(&self.pool)
         .await
         .unwrap();
-        Self::Model {
+        Post {
             id,
             text: data.text,
             author_id: data.author_id,
-            created_at: date.created_at
+            created_at: response.created_at,
+            edited: response.edited
         }
     }
 
@@ -83,7 +84,7 @@ impl Repository for PostRepository {
         }
 
         sqlx::query!(
-            r#"UPDATE "post" SET text = $1 WHERE id = $2"#,
+            r#"UPDATE "post" SET text = $1, edited =  true WHERE id = $2"#,
             post.text,
             id
         )

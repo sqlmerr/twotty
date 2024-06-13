@@ -9,7 +9,8 @@ pub struct PostSchema {
     pub id: Uuid,
     pub text: String,
     pub author_id: Uuid,
-    pub created_at: NaiveDateTime
+    pub created_at: NaiveDateTime,
+    pub edited: bool
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -29,6 +30,7 @@ impl From<&Post> for PostSchema {
             text: value.clone().text,
             author_id: value.author_id,
             created_at: value.created_at,
+            edited: value.edited
         }
     }
 }

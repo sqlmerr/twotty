@@ -1,0 +1,2 @@
+ALTER TABLE "post"
+ADD edited boolean NOT NULL DEFAULT FALSE;

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE \"post\" SET text = $1 WHERE id = $2",
+  "query": "UPDATE \"post\" SET text = $1, edited =  true WHERE id = $2",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "535c5a9c5c23f05d6bac0989b4f3754954bba712fbedf22ae0b652ccbefbaeb2"
+  "hash": "a464f494b7eb6155e099a84dd4655a7f5ea032a938368356d067fbd2ae2f05b6"
 }

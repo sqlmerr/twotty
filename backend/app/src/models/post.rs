@@ -10,6 +10,7 @@ pub struct Post {
     pub text: String,
     pub author_id: Uuid,
     pub created_at: NaiveDateTime,
+    pub edited: bool,
 }
 
 impl Post {
@@ -19,6 +20,7 @@ impl Post {
             text,
             author_id,
             created_at: Utc::now().naive_utc(),
+            edited: false,
         }
     }
 }
@@ -29,7 +31,8 @@ impl Into<PostSchema> for Post {
             id: self.id,
             author_id: self.author_id,
             text: self.text,
-            created_at: self.created_at
+            created_at: self.created_at,
+            edited: self.edited
         }
     }
 }

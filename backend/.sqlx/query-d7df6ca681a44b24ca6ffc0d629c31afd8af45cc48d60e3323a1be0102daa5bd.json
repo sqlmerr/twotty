@@ -22,6 +22,11 @@
         "ordinal": 3,
         "name": "created_at",
         "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 4,
+        "name": "edited",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -30,6 +35,7 @@
       ]
     },
     "nullable": [
+      false,
       false,
       false,
       false,
