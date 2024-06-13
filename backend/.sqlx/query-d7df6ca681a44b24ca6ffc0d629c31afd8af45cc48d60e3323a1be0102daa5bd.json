@@ -17,6 +17,11 @@
         "ordinal": 2,
         "name": "author_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamp"
       }
     ],
     "parameters": {
@@ -25,6 +30,7 @@
       ]
     },
     "nullable": [
+      false,
       false,
       false,
       false

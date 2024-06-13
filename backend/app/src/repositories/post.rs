@@ -32,19 +32,20 @@ impl Repository for PostRepository {
 
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
-        sqlx::query!(
-            r#"INSERT INTO "post" VALUES ($1, $2, $3)"#,
+        let date = sqlx::query!(
+            r#"INSERT INTO "post" (id, text, author_id) VALUES ($1, $2, $3) RETURNING created_at"#,
             id,
             data.text,
             data.author_id
         )
-        .execute(&self.pool)
+        .fetch_one(&self.pool)
         .await
         .unwrap();
         Self::Model {
             id,
             text: data.text,
             author_id: data.author_id,
+            created_at: date.created_at
         }
     }
 

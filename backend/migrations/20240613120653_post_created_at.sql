@@ -1,0 +1,2 @@
+ALTER TABLE "post"
+ADD created_at TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'utc');
