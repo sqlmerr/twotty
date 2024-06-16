@@ -3,13 +3,13 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
-import { authAction } from "@/lib/actions";
+import { useFormState } from "react-dom";
+import { loginAction } from "@/lib/actions";
 
 export default function Auth() {
-  const [errorMessage, dispatch] = useFormState(authAction, undefined);
+  const [errorMessage, dispatch] = useFormState(loginAction, undefined);
 
   return (
     <form className="mx-auto max-w-md space-y-6" action={dispatch}>
