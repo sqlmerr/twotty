@@ -31,3 +31,32 @@ export async function loginAction(_currentState: unknown, formData: FormData) {
 
   return redirect(`/@${me?.username}`);
 }
+
+export async function registerAction(
+  _currentState: unknown,
+  formData: FormData
+) {
+  const username = formData.get("username");
+  const password = formData.get("password");
+  const confirmPassword = formData.get("confirmPassword");
+  console.log(username, password, confirmPassword);
+  if (password != confirmPassword) {
+    return "Passwords do not match";
+  }
+  let response = await request("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ username: username, password: password }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.status == 403) {
+    return "Username is already occupied";
+  }
+  if (response.status != 201) {
+    console.log(response.status);
+    return "Server error";
+  }
+
+  return redirect("/login");
+}

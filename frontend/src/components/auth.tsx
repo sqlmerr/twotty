@@ -6,17 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import { useFormState } from "react-dom";
-import { loginAction } from "@/lib/actions";
+import { loginAction, registerAction } from "@/lib/actions";
 
-export default function Auth() {
-  const [errorMessage, dispatch] = useFormState(loginAction, undefined);
+export default function Auth({ registration }: { registration?: boolean }) {
+  const [errorMessage, dispatch] = useFormState(
+    registration ? registerAction : loginAction,
+    undefined
+  );
 
   return (
     <form className="mx-auto max-w-md space-y-6" action={dispatch}>
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Login</h1>
+        <h1 className="text-3xl font-bold">
+          {registration ? "Sign Up" : "Login"}
+        </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          Enter your username and password to sign in to your account.
+          {registration
+            ? "Enter username and password to create new account"
+            : "Enter your username and password to sign in to your account."}
         </p>
       </div>
       <div className="space-y-4">
@@ -34,6 +41,17 @@ export default function Auth() {
           <Label htmlFor="password">password</Label>
           <Input id="password" required type="password" name="password" />
         </div>
+        {registration && (
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">confirm password</Label>
+            <Input
+              id="password"
+              required
+              type="password"
+              name="confirmPassword"
+            />
+          </div>
+        )}
         {errorMessage && (
           <Alert variant={"destructive"}>
             <div />
@@ -41,12 +59,15 @@ export default function Auth() {
           </Alert>
         )}
         <Button className="w-full" type="submit">
-          Sign In
+          {registration ? "Sign Up" : "Sign In"}
         </Button>
         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?{" "}
-          <Link className="underline" href="#">
-            Sign up
+          {registration ? "Already" : "Don't"} have an account?{" "}
+          <Link
+            className="underline"
+            href={registration ? "/login" : "/register"}
+          >
+            {registration ? "Login" : "Sign up"}
           </Link>
         </div>
       </div>
