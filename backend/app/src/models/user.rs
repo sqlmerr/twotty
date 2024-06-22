@@ -9,12 +9,3 @@ pub struct User {
     pub username: String,
     pub password: String,
 }
-
-impl Into<UserSchema> for User {
-    fn into(self) -> UserSchema {
-        UserSchema {
-            id: self.id,
-            username: self.username,
-        }
-    }
-}

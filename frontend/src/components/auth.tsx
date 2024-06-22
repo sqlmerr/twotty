@@ -44,7 +44,7 @@ export default function Auth() {
           Sign In
         </Button>
         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?
+          Don't have an account?{" "}
           <Link className="underline" href="#">
             Sign up
           </Link>

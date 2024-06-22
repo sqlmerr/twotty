@@ -3,12 +3,13 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Json},
-    Router,
+    Extension, Router,
 };
 use serde_json::json;
 use uuid::Uuid;
 
 use super::auth_middleware;
+use crate::utils::errors::AuthError;
 use crate::{
     schemas::{
         auth::{AuthBody, AuthPayload},
@@ -27,6 +28,8 @@ use crate::{
         register_user,
         delete_user,
         update_user,
+        get_me,
+        get_user_by_username
     ),
     components(schemas(
         UserSchema,
@@ -50,10 +53,15 @@ pub fn init_users_router(state: AppState) -> Router<AppState> {
             get(get_user)
                 .delete(delete_user)
                 .patch(update_user)
-                .layer(auth_middleware),
+                .layer(auth_middleware.clone()),
         )
         .route("/login", post(login))
         .route("/register", post(register_user))
+        .route("/me", get(get_me).layer(auth_middleware.clone()))
+        .route(
+            "/@:username",
+            get(get_user_by_username).layer(auth_middleware.clone()),
+        )
 }
 
 #[utoipa::path(
@@ -175,4 +183,49 @@ pub async fn update_user(
 ) -> Result<impl IntoResponse, AppError> {
     state.user_service.update_user(&id, body).await?;
     Ok(Json(json!({ "message": "Task updated!" })))
+}
+
+#[utoipa::path(
+    get,
+    path = "/me",
+    tag = "auth",
+    responses(
+        (status = 200, description = "Current user", body = UserSchema)
+    ),
+    security(
+        ("http" = [])
+    )
+)]
+pub async fn get_me(Extension(me): Extension<UserSchema>) -> Result<impl IntoResponse, AppError> {
+    Ok(Json(me))
+}
+
+#[utoipa::path(
+    get,
+    path = "/@{username}",
+    tag = "auth",
+    responses(
+        (status = 200, description = "User found", body = UserSchema),
+        (status = 404, description = "User not found")
+    ),
+    params(
+        ("username" = String, Path, description = "User's username")
+    ),
+    security(
+        ("http" = [])
+    )
+)]
+pub async fn get_user_by_username(
+    State(state): State<AppState>,
+    Path(username): Path<String>,
+) -> Result<impl IntoResponse, AppError> {
+    let user = state
+        .user_service
+        .repository
+        .find_one_by_username(&username)
+        .await;
+    if let Some(user) = user {
+        return Ok(Json(UserSchema::from(user)));
+    }
+    return Err(AuthError::UserNotFound.into());
 }

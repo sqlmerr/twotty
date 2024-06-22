@@ -50,6 +50,8 @@ pub enum AuthError {
     InvalidToken,
     #[error("This username is already occupied!")]
     UsernameAlreadyOccupied,
+    #[error("User not found")]
+    UserNotFound,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -86,6 +88,8 @@ impl IntoResponse for AppError {
                     AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, error),
                     AuthError::InvalidToken => (StatusCode::BAD_REQUEST, error),
                     AuthError::UsernameAlreadyOccupied => (StatusCode::FORBIDDEN, error),
+                    AuthError::UserNotFound => (StatusCode::NOT_FOUND, error),
+                    _ => (StatusCode::FORBIDDEN, error)
                 }
             }
             Self::CantDoThis => (StatusCode::FORBIDDEN, message),

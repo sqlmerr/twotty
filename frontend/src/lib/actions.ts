@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { request } from "./api";
+import { getMe, request } from "./api";
 import { cookies } from "next/headers";
 
 export async function loginAction(_currentState: unknown, formData: FormData) {
@@ -27,6 +27,7 @@ export async function loginAction(_currentState: unknown, formData: FormData) {
   console.log(body);
 
   cookies().set("access-token", body.access_token);
+  const me = await getMe(body.access_token);
 
-  return redirect("/");
+  return redirect(`/@${me?.username}`);
 }

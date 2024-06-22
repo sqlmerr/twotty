@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
+use crate::models::user::User;
 
 #[derive(Serialize, Deserialize, ToSchema, Debug, Clone)]
 pub struct UserSchema {
@@ -21,4 +22,13 @@ pub struct UpdateUserSchema {
     #[validate(length(min = 4, message = "Username must be at least 4 characters long"))]
     pub username: Option<String>,
     pub password: Option<String>,
+}
+
+impl From<User> for UserSchema {
+    fn from(value: User) -> Self {
+        Self {
+            id: value.id,
+            username: value.username
+        }
+    }
 }

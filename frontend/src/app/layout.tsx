@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
+import { Geologica } from "next/font/google";
 import "./globals.css";
 
-const font = JetBrains_Mono({ subsets: ["latin"] });
+const font = Geologica({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Twotty",
