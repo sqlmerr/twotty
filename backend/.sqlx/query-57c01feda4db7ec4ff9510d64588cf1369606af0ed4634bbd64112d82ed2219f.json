@@ -17,6 +17,11 @@
         "ordinal": 2,
         "name": "password",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "avatar",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -25,7 +30,8 @@
     "nullable": [
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "57c01feda4db7ec4ff9510d64588cf1369606af0ed4634bbd64112d82ed2219f"

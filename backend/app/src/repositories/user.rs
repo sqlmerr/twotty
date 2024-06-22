@@ -1,16 +1,18 @@
 use super::Repository;
-use crate::models::user;
+use crate::models::user::User;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 pub struct CreateUserDTO {
     pub username: String,
     pub password: String,
+    pub avatar: Option<String>,
 }
 
 pub struct UpdateUserDTO {
     pub username: Option<String>,
     pub password: Option<String>,
+    pub avatar: Option<String>
 }
 
 #[derive(Clone)]
@@ -20,7 +22,7 @@ pub struct UserRepository {
 
 #[async_trait::async_trait]
 impl Repository for UserRepository {
-    type Model = user::User;
+    type Model = User;
     type Id = Uuid;
     type CreateDTO = CreateUserDTO;
     type UpdateDTO = UpdateUserDTO;
@@ -29,30 +31,32 @@ impl Repository for UserRepository {
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
         sqlx::query!(
-            r#"INSERT INTO "user" VALUES ($1, $2, $3)"#,
+            r#"INSERT INTO "user" (id, username, password, avatar) VALUES ($1, $2, $3, $4)"#,
             id,
             data.username,
-            data.password
+            data.password,
+            data.avatar
         )
         .execute(&self.pool)
         .await
         .unwrap();
-        Self::Model {
+        User {
             id,
             username: data.username,
             password: data.password,
+            avatar: data.avatar
         }
     }
 
     async fn find_one(&self, id: &Self::Id) -> Option<Self::Model> {
-        sqlx::query_as!(user::User, r#"SELECT * FROM "user" WHERE id = $1"#, id)
+        sqlx::query_as!(User, r#"SELECT * FROM "user" WHERE id = $1"#, id)
             .fetch_optional(&self.pool)
             .await
             .unwrap()
     }
 
     async fn find_all(&self, _params: Self::FindAllParams) -> Vec<Self::Model> {
-        sqlx::query_as!(user::User, r#"SELECT * FROM "user""#)
+        sqlx::query_as!(User, r#"SELECT * FROM "user""#)
             .fetch_all(&self.pool)
             .await
             .unwrap()
@@ -76,11 +80,16 @@ impl Repository for UserRepository {
             user.password = password;
         }
 
+        if let Some(avatar) = data.avatar {
+            user.avatar = Some(avatar);
+        }
+
         sqlx::query!(
-            r#"UPDATE "user" SET username = $2, password = $3 WHERE id = $1"#,
+            r#"UPDATE "user" SET username = $2, password = $3, avatar = $4 WHERE id = $1"#,
             user.id,
             user.username,
-            user.password
+            user.password,
+            user.avatar
         )
         .execute(&self.pool)
         .await
@@ -94,7 +103,7 @@ impl UserRepository {
         username: &String,
     ) -> Option<<UserRepository as Repository>::Model> {
         sqlx::query_as!(
-            user::User,
+            User,
             r#"SELECT * FROM "user" WHERE username = $1"#,
             username
         )

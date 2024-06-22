@@ -182,7 +182,7 @@ pub async fn update_user(
     ValidatedJson(body): ValidatedJson<UpdateUserSchema>,
 ) -> Result<impl IntoResponse, AppError> {
     state.user_service.update_user(&id, body).await?;
-    Ok(Json(json!({ "message": "Task updated!" })))
+    Ok(Json(json!({ "message": "User updated!" })))
 }
 
 #[utoipa::path(

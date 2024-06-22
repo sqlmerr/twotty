@@ -23,12 +23,14 @@ impl UserService {
             .create(CreateUserDTO {
                 username: data.username,
                 password: hashed_password,
+                avatar: data.avatar
             })
             .await;
 
         Ok(UserSchema {
             id: response.id,
             username: response.username,
+            avatar: response.avatar
         })
     }
 
@@ -39,9 +41,10 @@ impl UserService {
                 entity: "User",
                 id: *id,
             }),
-            Some(task) => Ok(UserSchema {
-                id: task.id,
-                username: task.username,
+            Some(user) => Ok(UserSchema {
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar
             }),
         }
     }
@@ -73,9 +76,10 @@ impl UserService {
         let response = self.repository.find_all(()).await;
         let tasks: Vec<UserSchema> = response
             .iter()
-            .map(|t| UserSchema {
-                id: t.id,
-                username: t.to_owned().username,
+            .map(|u| UserSchema {
+                id: u.clone().id,
+                username: u.clone().username,
+                avatar: u.clone().avatar
             })
             .collect();
         tasks
@@ -95,8 +99,8 @@ impl UserService {
     }
 
     pub async fn update_user(&self, id: &Uuid, data: UpdateUserSchema) -> Result<(), AppError> {
-        let task = self.repository.find_one(id).await;
-        if task.is_none() {
+        let user = self.repository.find_one(id).await;
+        if user.is_none() {
             return Err(AppError::EntityNotFound {
                 entity: "User",
                 id: *id,
@@ -113,6 +117,7 @@ impl UserService {
         let dto = UpdateUserDTO {
             username: data.username,
             password,
+            avatar: data.avatar
         };
         self.repository.update(id, dto).await;
         Ok(())
