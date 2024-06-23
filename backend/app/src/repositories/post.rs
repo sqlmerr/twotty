@@ -60,7 +60,7 @@ impl Repository for PostRepository {
     async fn find_all(&self, params: Self::FindAllParams) -> Vec<Self::Model> {
         sqlx::query_as!(
             Post,
-            r#"SELECT * FROM "post" WHERE author_id = $1"#,
+            r#"SELECT * FROM "post" WHERE author_id = $1 ORDER BY created_at DESC"#,
             params.author_id
         )
         .fetch_all(&self.pool)

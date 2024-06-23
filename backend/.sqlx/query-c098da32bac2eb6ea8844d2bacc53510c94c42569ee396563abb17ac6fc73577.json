@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM \"post\" WHERE author_id = $1",
+  "query": "SELECT * FROM \"post\" WHERE author_id = $1 ORDER BY created_at DESC",
   "describe": {
     "columns": [
       {
@@ -42,5 +42,5 @@
       false
     ]
   },
-  "hash": "d7df6ca681a44b24ca6ffc0d629c31afd8af45cc48d60e3323a1be0102daa5bd"
+  "hash": "c098da32bac2eb6ea8844d2bacc53510c94c42569ee396563abb17ac6fc73577"
 }

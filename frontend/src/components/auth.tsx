@@ -45,7 +45,7 @@ export default function Auth({ registration }: { registration?: boolean }) {
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">confirm password</Label>
             <Input
-              id="password"
+              id="confirmPassword"
               required
               type="password"
               name="confirmPassword"

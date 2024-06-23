@@ -1,6 +1,9 @@
 "use client";
 
-import { getUser } from "@/lib/api";
+import { Post as PostCard } from "@/components/post";
+import { UserProfile } from "@/components/user-profile";
+import { getUser, getUserPosts } from "@/lib/api";
+import Post from "@/lib/models/post";
 import User from "@/lib/models/user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,20 +13,35 @@ export default function Profile({ params }: { params: { username: string } }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [user, setUser] = useState({ id: "", username: "" } as User);
+  const [user, setUser] = useState({
+    id: "",
+    username: "",
+    avatar: null,
+  } as User);
+  const [posts, setPosts] = useState([
+    { id: "", text: "", authorId: "", edited: false, createdAt: new Date(1) },
+  ] as [Post]);
 
   useEffect(() => {
-    async function getUserByUsername() {
-      const response = await getUser(params.username);
-      if (!response) {
+    async function getUserByUsernameAndPosts() {
+      const user = await getUser(params.username);
+      if (!user) {
         setError(true);
         return;
       }
 
-      setUser(response);
+      const posts = await getUserPosts();
+      if (!posts) {
+        setError(true);
+        console.log(posts);
+        return;
+      }
+
+      setUser(user);
+      setPosts(posts);
       setIsLoading(false);
     }
-    getUserByUsername();
+    getUserByUsernameAndPosts();
   }, [params.username, setUser]);
 
   if (error) {
@@ -34,5 +52,5 @@ export default function Profile({ params }: { params: { username: string } }) {
     return <h1>Loading</h1>;
   }
 
-  return <h1>{JSON.stringify(user)}</h1>;
+  return <UserProfile user={user} posts={posts} />;
 }
