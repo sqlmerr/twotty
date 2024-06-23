@@ -7,12 +7,14 @@ pub struct CreateUserDTO {
     pub username: String,
     pub password: String,
     pub avatar: Option<String>,
+    pub about: String,
 }
 
 pub struct UpdateUserDTO {
     pub username: Option<String>,
     pub password: Option<String>,
-    pub avatar: Option<String>
+    pub avatar: Option<String>,
+    pub about: Option<String>,
 }
 
 #[derive(Clone)]
@@ -31,11 +33,12 @@ impl Repository for UserRepository {
     async fn create(&self, data: Self::CreateDTO) -> Self::Model {
         let id = Uuid::new_v4();
         sqlx::query!(
-            r#"INSERT INTO "user" (id, username, password, avatar) VALUES ($1, $2, $3, $4)"#,
+            r#"INSERT INTO "user" (id, username, password, avatar, about) VALUES ($1, $2, $3, $4, $5)"#,
             id,
             data.username,
             data.password,
-            data.avatar
+            data.avatar,
+            data.about
         )
         .execute(&self.pool)
         .await
@@ -44,7 +47,8 @@ impl Repository for UserRepository {
             id,
             username: data.username,
             password: data.password,
-            avatar: data.avatar
+            avatar: data.avatar,
+            about: data.about,
         }
     }
 
@@ -84,12 +88,17 @@ impl Repository for UserRepository {
             user.avatar = Some(avatar);
         }
 
+        if let Some(about) = data.about {
+            user.about = about;
+        }
+
         sqlx::query!(
-            r#"UPDATE "user" SET username = $2, password = $3, avatar = $4 WHERE id = $1"#,
+            r#"UPDATE "user" SET username = $2, password = $3, avatar = $4, about = $5 WHERE id = $1"#,
             user.id,
             user.username,
             user.password,
-            user.avatar
+            user.avatar,
+            user.about
         )
         .execute(&self.pool)
         .await

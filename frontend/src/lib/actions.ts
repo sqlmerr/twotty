@@ -45,7 +45,7 @@ export async function registerAction(
   }
   let response = await request("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ username: username, password: password }),
+    body: JSON.stringify({ username: username, password: password, about: "" }),
     headers: {
       "Content-Type": "application/json",
     },

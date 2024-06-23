@@ -45,6 +45,7 @@ export async function getUser(username: string) {
     id: body.id,
     username: body.username,
     avatar: body.avatar,
+    about: body.about,
   } as User;
 }
 

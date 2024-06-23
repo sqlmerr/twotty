@@ -47,12 +47,11 @@ pub(super) struct AuthDoc;
 pub fn init_users_router(state: AppState) -> Router<AppState> {
     let auth_middleware = axum::middleware::from_fn_with_state(state, auth_middleware);
     Router::new()
-        .route("/", get(get_all_users).layer(auth_middleware.clone()))
+        .route("/", get(get_all_users).patch(update_user).layer(auth_middleware.clone()))
         .route(
             "/:id",
             get(get_user)
                 .delete(delete_user)
-                .patch(update_user)
                 .layer(auth_middleware.clone()),
         )
         .route("/login", post(login))
@@ -162,15 +161,12 @@ pub async fn delete_user(
 
 #[utoipa::path(
     patch,
-    path = "/{id}",
+    path = "",
     tag = "auth",
     request_body = UpdateUserSchema,
     responses(
         (status = 200, description = "User edited successfully"),
         (status = 404, description = "User not found")
-    ),
-    params(
-        ("id" = Uuid, Path, description = "User id from database")
     ),
     security(
         ("http" = [])
@@ -178,11 +174,11 @@ pub async fn delete_user(
 )]
 pub async fn update_user(
     State(state): State<AppState>,
-    Path(id): Path<Uuid>,
+    Extension(user): Extension<UserSchema>,
     ValidatedJson(body): ValidatedJson<UpdateUserSchema>,
 ) -> Result<impl IntoResponse, AppError> {
-    state.user_service.update_user(&id, body).await?;
-    Ok(Json(json!({ "message": "User updated!" })))
+    state.user_service.update_user(&user.id, body).await?;
+    Ok(Json(json!({ "ok": true })))
 }
 
 #[utoipa::path(

@@ -23,14 +23,16 @@ impl UserService {
             .create(CreateUserDTO {
                 username: data.username,
                 password: hashed_password,
-                avatar: data.avatar
+                avatar: data.avatar,
+                about: data.about
             })
             .await;
 
         Ok(UserSchema {
             id: response.id,
             username: response.username,
-            avatar: response.avatar
+            avatar: response.avatar,
+            about: response.about
         })
     }
 
@@ -44,7 +46,8 @@ impl UserService {
             Some(user) => Ok(UserSchema {
                 id: user.id,
                 username: user.username,
-                avatar: user.avatar
+                avatar: user.avatar,
+                about: user.about
             }),
         }
     }
@@ -79,7 +82,8 @@ impl UserService {
             .map(|u| UserSchema {
                 id: u.clone().id,
                 username: u.clone().username,
-                avatar: u.clone().avatar
+                avatar: u.clone().avatar,
+                about: u.clone().about
             })
             .collect();
         tasks
@@ -106,6 +110,18 @@ impl UserService {
                 id: *id,
             });
         }
+
+        if let Some(u) = data.username.clone() {
+            let user_with_same_username = self.repository
+                .find_one_by_username(&u)
+                .await;
+            if let Some(user) = user_with_same_username {
+                if user.id != *id {
+                    return Err(AuthError::UsernameAlreadyOccupied.into());
+                }
+            }
+        }
+
         let password;
 
         if let Some(pass) = data.password {
@@ -115,9 +131,10 @@ impl UserService {
         }
 
         let dto = UpdateUserDTO {
-            username: data.username,
+            username: data.username.clone(),
             password,
-            avatar: data.avatar
+            avatar: data.avatar,
+            about: data.about,
         };
         self.repository.update(id, dto).await;
         Ok(())

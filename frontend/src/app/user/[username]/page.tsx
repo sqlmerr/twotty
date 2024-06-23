@@ -1,11 +1,11 @@
 "use client";
 
 import { Post as PostCard } from "@/components/post";
+import useUserContext from "@/components/user-context";
 import { UserProfile } from "@/components/user-profile";
 import { getUser, getUserPosts } from "@/lib/api";
 import Post from "@/lib/models/post";
-import User from "@/lib/models/user";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Profile({ params }: { params: { username: string } }) {
@@ -13,14 +13,14 @@ export default function Profile({ params }: { params: { username: string } }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [user, setUser] = useState({
-    id: "",
-    username: "",
-    avatar: null,
-  } as User);
+  const { user, setUser } = useUserContext();
   const [posts, setPosts] = useState([
     { id: "", text: "", authorId: "", edited: false, createdAt: new Date(1) },
   ] as [Post]);
+
+  if (!user) {
+    redirect("/login");
+  }
 
   useEffect(() => {
     async function getUserByUsernameAndPosts() {

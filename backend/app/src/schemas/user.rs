@@ -8,7 +8,8 @@ use crate::models::user::User;
 pub struct UserSchema {
     pub id: Uuid,
     pub username: String,
-    pub avatar: Option<String>
+    pub avatar: Option<String>,
+    pub about: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
@@ -17,7 +18,9 @@ pub struct CreateUserSchema {
     pub username: String,
     pub password: String,
     #[validate(url)]
-    pub avatar: Option<String>
+    pub avatar: Option<String>,
+    #[validate(length(max = 255, message = "About must be less than 255 characters"))]
+    pub about: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Validate)]
@@ -26,7 +29,9 @@ pub struct UpdateUserSchema {
     pub username: Option<String>,
     pub password: Option<String>,
     #[validate(url)]
-    pub avatar: Option<String>
+    pub avatar: Option<String>,
+    #[validate(length(max = 255, message = "About must be less than 255 characters"))]
+    pub about: Option<String>,
 }
 
 impl From<User> for UserSchema {
@@ -34,7 +39,8 @@ impl From<User> for UserSchema {
         Self {
             id: value.id,
             username: value.username,
-            avatar: value.avatar
+            avatar: value.avatar,
+            about: value.about,
         }
     }
 }

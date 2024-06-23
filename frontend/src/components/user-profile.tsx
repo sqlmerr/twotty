@@ -22,6 +22,7 @@ export function UserProfile({ user, posts }: { user: User; posts: [Post] }) {
         <div className="text-center">
           <div className="text-2xl font-bold">@{user.username}</div>
           {/* <div className="text-slate-500 dark:text-slate-400">@johndoe</div> */}
+          <div className="text-muted-foreground mt-2">{user.about}</div>
         </div>
       </div>
       <div className="grid gap-6">
