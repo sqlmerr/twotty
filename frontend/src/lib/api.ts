@@ -8,7 +8,21 @@ export async function request(url: string | URL, init: RequestInit) {
   return await fetch(`http://localhost:8000${url}`, init);
 }
 
-export async function getMe(token: string) {
+export async function getMe(token?: string) {
+  if (!token) {
+    const token = cookies().get("access-token")?.value;
+    const response = await request("/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.status != 200) {
+      return;
+    }
+
+    const body = await response.json();
+    return body as User;
+  }
   const response = await request("/auth/me", {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -19,11 +33,7 @@ export async function getMe(token: string) {
   }
 
   const body = await response.json();
-  console.log(body);
-  return {
-    id: body.id,
-    username: body.username,
-  } as User;
+  return body as User;
 }
 
 export async function getUser(username: string) {
@@ -49,13 +59,13 @@ export async function getUser(username: string) {
   } as User;
 }
 
-export async function getUserPosts() {
+export async function getUserPosts(username: string) {
   const token = cookies().get("access-token")?.value;
   if (!token) {
     return;
   }
 
-  const response = await request(`/posts`, {
+  const response = await request(`/posts/@${username}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -72,7 +82,6 @@ export async function getUserPosts() {
   //   createdAt: body.created_at,
   //   edited: body.edited,
   // } as Post;
-  console.log(body);
 
   return body.map((post: any) => {
     return {
@@ -83,4 +92,43 @@ export async function getUserPosts() {
       edited: post.edited,
     } as Post;
   }) as [Post];
+}
+
+export async function createPost(text: string) {
+  const token = cookies().get("access-token")?.value;
+  if (!token) {
+    return;
+  }
+  const response = await request(`/posts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: text }),
+  });
+  if (response.status != 201) {
+    cookies().delete("access-token");
+    return;
+  }
+  const body = await response.json();
+  return body as Post;
+}
+
+export async function deletePost(id: string) {
+  const token = cookies().get("access-token")?.value;
+  if (!token) {
+    return;
+  }
+  const response = await request(`/posts/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.status != 200) {
+    cookies().delete("access-token");
+    return;
+  }
 }

@@ -22,6 +22,11 @@
         "ordinal": 3,
         "name": "avatar",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "about",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -31,7 +36,8 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "57c01feda4db7ec4ff9510d64588cf1369606af0ed4634bbd64112d82ed2219f"

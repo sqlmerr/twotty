@@ -4,47 +4,65 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 
+import { deletePost, getUserPosts } from "@/lib/api";
+import { TrashIcon } from "@radix-ui/react-icons";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import User from "@/lib/models/user";
 import { format } from "date-fns";
 
 interface PostProps {
+  id: string;
   text: string;
   edited: boolean;
   createdAt: Date;
-  user: User;
+  author: User;
+  currentUser: User;
+  setPosts: any;
 }
 
-export function Post({ text, edited, createdAt, user }: PostProps) {
+export function Post({
+  id,
+  text,
+  edited,
+  createdAt,
+  author,
+  currentUser,
+  setPosts,
+}: PostProps) {
+  async function handleClick() {
+    await deletePost(id);
+    const userPosts = await getUserPosts(author.username);
+    setPosts(userPosts);
+  }
+
   const time = format(createdAt, "yyyy-MM-dd HH:mm:ss");
   return (
     <Card className="w-full max-w-2xl">
       <CardContent className="p-4 md:p-6">
         <div className="flex items-start gap-4">
-          <Link href="#" className="flex-shrink-0" prefetch={false}>
-            <Avatar className="w-10 h-10 border">
-              <AvatarImage
-                src={user.avatar ? user.avatar : "/placeholder-user.jpg"}
-              />
-              <AvatarFallback>{user.username}</AvatarFallback>
-            </Avatar>
-          </Link>
+          <Avatar className="w-10 h-10 border">
+            <AvatarImage
+              src={author.avatar ? author.avatar : "/placeholder-user.jpg"}
+            />
+            <AvatarFallback>{author.username}</AvatarFallback>
+          </Avatar>
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Link
-                href={`/@${user.username}`}
+                href={`/@${author.username}`}
                 className="font-medium"
                 prefetch={false}
               >
-                @{user.username}
+                @{author.username}
               </Link>
               <div className="text-xs text-slate-500 dark:text-slate-400">
                 <time dateTime={time}>{time}</time>
               </div>
             </div>
-            <div className="prose prose-sm text-slate-950 dark:text-slate-50">
+            <div className="prose prose-sm text-slate-950 dark:text-slate-50 break-all">
               <p>{text}</p>
             </div>
             {edited && (
@@ -53,6 +71,17 @@ export function Post({ text, edited, createdAt, user }: PostProps) {
               </div>
             )}
           </div>
+          {currentUser?.id == author.id && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="top-0 right-0"
+              onClick={handleClick}
+            >
+              <TrashIcon />
+              <span className="sr-only">Delete post</span>
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

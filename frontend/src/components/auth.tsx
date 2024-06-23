@@ -3,16 +3,35 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import useUserContext from "@/components/user-context";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 import { loginAction, registerAction } from "@/lib/actions";
+import { redirect } from "next/navigation";
 
 export default function Auth({ registration }: { registration?: boolean }) {
-  const [errorMessage, dispatch] = useFormState(
-    registration ? registerAction : loginAction,
-    undefined
-  );
+  const { user, setUser } = useUserContext();
+
+  // if (user) {
+  //   redirect(`/@${user.username}`);
+  // }
+
+  async function action(_currentState: unknown, formData: FormData) {
+    if (registration) {
+      return await registerAction(_currentState, formData);
+    } else {
+      const me = await loginAction(_currentState, formData);
+      console.log("aaaaaa", me);
+      if (typeof me === "string") {
+        return me;
+      }
+      setUser(me);
+      return redirect(`/@${me?.username}`);
+    }
+  }
+
+  const [errorMessage, dispatch] = useFormState(action, undefined);
 
   return (
     <form className="mx-auto max-w-md space-y-6" action={dispatch}>

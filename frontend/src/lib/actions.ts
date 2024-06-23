@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getMe, request } from "./api";
 import { cookies } from "next/headers";
+import User from "./models/user";
 
 export async function loginAction(_currentState: unknown, formData: FormData) {
   const username = formData.get("username");
@@ -29,7 +30,7 @@ export async function loginAction(_currentState: unknown, formData: FormData) {
   cookies().set("access-token", body.access_token);
   const me = await getMe(body.access_token);
 
-  return redirect(`/@${me?.username}`);
+  return me as User;
 }
 
 export async function registerAction(
@@ -59,4 +60,13 @@ export async function registerAction(
   }
 
   return redirect("/login");
+}
+
+export async function getUserStateAction() {
+  const token = cookies().get("access-token")?.value;
+  if (!token) {
+    return;
+  }
+  const user = await getMe(token);
+  return user;
 }

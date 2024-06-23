@@ -33,7 +33,9 @@ export function Header() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar className="h-9 w-9 cursor-pointer">
-            <AvatarImage src="/placeholder-user.jpg" />
+            <AvatarImage
+              src={user?.avatar ? user.avatar : "/placeholder-user.jpg"}
+            />
             {/* <AvatarFallback>USER</AvatarFallback> */}
           </Avatar>
         </DropdownMenuTrigger>
