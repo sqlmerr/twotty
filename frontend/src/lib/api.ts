@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import User from "./models/user";
 import Post from "./models/post";
+import { redirect } from "next/navigation";
 
 export async function request(url: string | URL, init: RequestInit) {
   return await fetch(`http://localhost:8000${url}`, init);
@@ -57,6 +58,34 @@ export async function getUser(username: string) {
     avatar: body.avatar,
     about: body.about,
   } as User;
+}
+
+export async function updateUser(data: object) {
+  const token = cookies().get("access-token")?.value;
+  if (!token) {
+    return false;
+  }
+  const response = await request(`/auth`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  const body = await response.json();
+  console.log(response, body);
+  if (response.status != 200) {
+    if (response.status == 403) {
+      return body.message as string;
+    }
+    if (response.status == 400) {
+      return redirect("/login");
+    }
+    console.log(response, body);
+    return false;
+  }
+  return true;
 }
 
 export async function getUserPosts(username: string) {

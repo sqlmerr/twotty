@@ -3,6 +3,7 @@ import { Geologica } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { UserProvider } from "@/components/user-context";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const font = Geologica({ subsets: ["latin"] });
 
@@ -19,10 +20,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={font.className}>
-        <UserProvider>
-          <Header />
-          {children}
-        </UserProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <UserProvider>
+            <Header />
+            {children}
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

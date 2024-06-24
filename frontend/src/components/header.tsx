@@ -58,7 +58,11 @@ function HeaderDropdownMenu({ user }: { user: User }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Link href="#" className="flex items-center gap-2" prefetch={false}>
+          <Link
+            href="/settings"
+            className="flex items-center gap-2"
+            prefetch={false}
+          >
             <SettingsIcon className="h-4 w-4" />
             Settings
           </Link>
