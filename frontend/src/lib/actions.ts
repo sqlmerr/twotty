@@ -40,7 +40,6 @@ export async function registerAction(
   const username = formData.get("username");
   const password = formData.get("password");
   const confirmPassword = formData.get("confirmPassword");
-  console.log(username, password, confirmPassword);
   if (password != confirmPassword) {
     return "Passwords do not match";
   }
@@ -68,5 +67,12 @@ export async function getUserStateAction() {
     return;
   }
   const user = await getMe(token);
+  if (!user) {
+    return;
+  }
   return user;
+}
+
+export async function deleteCookie(cookieName: string) {
+  cookies().delete(cookieName);
 }

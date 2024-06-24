@@ -16,6 +16,7 @@ import { useState } from "react";
 import { createPost, getUserPosts } from "@/lib/api";
 import useUserContext from "./user-context";
 import { redirect } from "next/navigation";
+import { Alert, AlertTitle } from "./ui/alert";
 
 export function UserProfile({
   author,
@@ -28,8 +29,7 @@ export function UserProfile({
 }) {
   const { user, setUser } = useUserContext();
   const [message, setMessage] = useState("");
-
-  console.log(user?.id, author.id);
+  const [errorMessage, setErrorMessage] = useState("");
 
   if (!user) {
     redirect("/login");
@@ -37,10 +37,15 @@ export function UserProfile({
 
   async function handleSubmit(e: any) {
     e.preventDefault();
-    await createPost(message);
+    const response = await createPost(message);
+    if (!response) {
+      setErrorMessage("Text length must be less than 256 characters");
+      return;
+    }
     const userPosts = await getUserPosts(author.username);
     setPosts(userPosts);
     setMessage("");
+    setErrorMessage("");
   }
 
   return (
@@ -59,6 +64,11 @@ export function UserProfile({
         </div>
       </div>
       <div className="grid gap-6">
+        {errorMessage && (
+          <Alert variant={"destructive"}>
+            <AlertTitle>{errorMessage}</AlertTitle>
+          </Alert>
+        )}
         {user.id == author.id && (
           <div className="grid gap-4">
             <Textarea

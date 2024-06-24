@@ -108,7 +108,6 @@ export async function createPost(text: string) {
     body: JSON.stringify({ text: text }),
   });
   if (response.status != 201) {
-    cookies().delete("access-token");
     return;
   }
   const body = await response.json();
@@ -131,4 +130,24 @@ export async function deletePost(id: string) {
     cookies().delete("access-token");
     return;
   }
+}
+
+export async function editPost(id: string, text: string) {
+  const token = cookies().get("access-token")?.value;
+  if (!token) {
+    return false;
+  }
+  const response = await request(`/posts/${id}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: text }),
+  });
+  if (response.status != 200) {
+    return false;
+  }
+  const body = await response.json();
+  return body.ok;
 }

@@ -8,13 +8,13 @@ import User from "@/lib/models/user";
 
 interface UserState {
   user?: User;
-  setUser: (user: User) => void;
+  setUser: (user?: User) => void;
 }
 
 export const UserContext = createContext({} as UserState);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState({} as User);
+  const [user, setUser] = useState<undefined | User>(undefined);
 
   useEffect(() => {
     async function getUser() {

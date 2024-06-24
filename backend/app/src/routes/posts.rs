@@ -11,6 +11,7 @@ use crate::schemas::post::{CreatePostSchema, PostSchema, UpdatePostSchema};
 use crate::schemas::user::UserSchema;
 use crate::state::AppState;
 use crate::utils::errors::{AppError, AuthError};
+use crate::utils::validator::ValidatedJson;
 
 #[derive(utoipa::OpenApi)]
 #[openapi(
@@ -57,7 +58,7 @@ pub fn init_posts_router(state: AppState) -> Router<AppState> {
 pub async fn create_post(
     State(state): State<AppState>,
     Extension(user): Extension<UserSchema>,
-    Json(data): Json<CreatePostSchema>,
+    ValidatedJson(data): ValidatedJson<CreatePostSchema>,
 ) -> Result<impl IntoResponse, AppError> {
     let post = state.post_service.create_post(data, &user.id).await?;
     tracing::info!("Created post with id `{}`", post.id);
@@ -179,7 +180,7 @@ pub async fn update_post(
     State(state): State<AppState>,
     Extension(user): Extension<UserSchema>,
     Path(id): Path<Uuid>,
-    Json(data): Json<UpdatePostSchema>,
+    ValidatedJson(data): ValidatedJson<UpdatePostSchema>,
 ) -> Result<impl IntoResponse, AppError> {
     state.post_service.update_post(&id, data, &user.id).await?;
     Ok(Json(json!({"ok": true})))

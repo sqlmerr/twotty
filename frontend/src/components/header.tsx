@@ -11,18 +11,17 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import useUserContext from "./user-context";
 import { redirect } from "next/navigation";
+import User from "@/lib/models/user";
 
 export function Header() {
   const { user, setUser } = useUserContext();
-
-  if (!user) {
-    redirect("/login");
-  }
 
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white shadow dark:bg-slate-950">
@@ -30,37 +29,75 @@ export function Header() {
         <MountainIcon className="h-6 w-6" />
         <span className="text-lg font-bold">Twotty</span>
       </Link>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className="h-9 w-9 cursor-pointer">
-            <AvatarImage
-              src={user?.avatar ? user.avatar : "/placeholder-user.jpg"}
-            />
-            {/* <AvatarFallback>USER</AvatarFallback> */}
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem>
-            <Link
-              href={"/user/" + user.username}
-              className="flex items-center gap-2"
-              prefetch={false}
-            >
-              <UserIcon className="h-4 w-4" />
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Link href="#" className="flex items-center gap-2" prefetch={false}>
-              <SettingsIcon className="h-4 w-4" />
-              Settings
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {user && <HeaderDropdownMenu user={user} />}
     </header>
   );
   ``;
+}
+
+function HeaderDropdownMenu({ user }: { user: User }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="h-9 w-9 cursor-pointer">
+          <AvatarImage
+            src={user?.avatar ? user.avatar : "/placeholder-user.jpg"}
+          />
+          {/* <AvatarFallback>USER</AvatarFallback> */}
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem>
+          <Link
+            href={"/user/" + user.username}
+            className="flex items-center gap-2"
+            prefetch={false}
+          >
+            <UserIcon className="h-4 w-4" />
+            Profile
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href="#" className="flex items-center gap-2" prefetch={false}>
+            <SettingsIcon className="h-4 w-4" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <Link
+            href="/logout"
+            className="flex items-center gap-2"
+            prefetch={false}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            Logout
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function LogOutIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" x2="9" y1="12" y2="12" />
+    </svg>
+  );
 }
 
 function MountainIcon(props) {

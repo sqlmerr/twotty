@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 use chrono::{NaiveDateTime};
+use validator::Validate;
 
 #[derive(Serialize, Deserialize, ToSchema, Debug, Clone)]
 pub struct PostSchema {
@@ -13,13 +14,15 @@ pub struct PostSchema {
     pub edited: bool
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct CreatePostSchema {
+    #[validate(length(min = 1, max = 256, message = "Text length must be between 1 and 256 characters"))]
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Validate)]
 pub struct UpdatePostSchema {
+    #[validate(length(min = 1, max = 256, message = "Text length must be between 1 and 256 characters"))]
     pub text: Option<String>,
 }
 
