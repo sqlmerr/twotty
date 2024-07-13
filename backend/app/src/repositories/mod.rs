@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+pub mod following;
 pub mod post;
 pub mod user;
 

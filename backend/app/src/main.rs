@@ -16,7 +16,8 @@ async fn main() {
 
     let filter = tracing_subscriber::filter::EnvFilter::default()
         .add_directive(tracing::Level::INFO.into())
-        .add_directive("sqlx=error".parse().unwrap());
+        .add_directive("sqlx=error".parse().unwrap())
+        .add_directive("tower_http=trace".parse().unwrap());
 
     let subscriber = tracing_subscriber::fmt()
         .compact()

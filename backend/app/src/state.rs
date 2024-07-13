@@ -1,3 +1,4 @@
+use crate::services::following::FollowingService;
 use crate::services::post::PostService;
 use crate::services::user::UserService;
 use crate::Config;
@@ -6,5 +7,6 @@ use crate::Config;
 pub struct AppState {
     pub user_service: UserService,
     pub post_service: PostService,
+    pub following_service: FollowingService,
     pub config: Config,
 }

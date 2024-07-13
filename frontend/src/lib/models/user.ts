@@ -3,4 +3,6 @@ export default interface User {
   username: string;
   avatar: null | string;
   about: string;
+  followers?: number;
+  followings?: number;
 }

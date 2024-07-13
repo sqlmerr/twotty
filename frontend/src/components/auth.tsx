@@ -13,9 +13,10 @@ import { redirect } from "next/navigation";
 export default function Auth({ registration }: { registration?: boolean }) {
   const { user, setUser } = useUserContext();
 
-  // if (user) {
-  //   redirect(`/@${user.username}`);
-  // }
+  if (user) {
+    console.log(user)
+    redirect(`/@${user.username}`);
+  }
 
   async function action(_currentState: unknown, formData: FormData) {
     if (registration) {

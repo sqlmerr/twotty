@@ -1,8 +1,8 @@
+use crate::models::user::User;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
-use crate::models::user::User;
 
 #[derive(Serialize, Deserialize, ToSchema, Debug, Clone)]
 pub struct UserSchema {

@@ -24,7 +24,7 @@ impl UserService {
                 username: data.username,
                 password: hashed_password,
                 avatar: data.avatar,
-                about: data.about
+                about: data.about,
             })
             .await;
 
@@ -32,7 +32,7 @@ impl UserService {
             id: response.id,
             username: response.username,
             avatar: response.avatar,
-            about: response.about
+            about: response.about,
         })
     }
 
@@ -47,7 +47,7 @@ impl UserService {
                 id: user.id,
                 username: user.username,
                 avatar: user.avatar,
-                about: user.about
+                about: user.about,
             }),
         }
     }
@@ -83,7 +83,7 @@ impl UserService {
                 id: u.clone().id,
                 username: u.clone().username,
                 avatar: u.clone().avatar,
-                about: u.clone().about
+                about: u.clone().about,
             })
             .collect();
         tasks
@@ -112,9 +112,7 @@ impl UserService {
         }
 
         if let Some(u) = data.username.clone() {
-            let user_with_same_username = self.repository
-                .find_one_by_username(&u)
-                .await;
+            let user_with_same_username = self.repository.find_one_by_username(&u).await;
             if let Some(user) = user_with_same_username {
                 if user.id != *id {
                     return Err(AuthError::UsernameAlreadyOccupied.into());

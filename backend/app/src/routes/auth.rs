@@ -1,4 +1,4 @@
-use axum::routing::{get, post};
+use axum::routing::{delete, get, patch, post};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -9,7 +9,6 @@ use serde_json::json;
 use uuid::Uuid;
 
 use super::auth_middleware;
-use crate::utils::errors::AuthError;
 use crate::{
     schemas::{
         auth::{AuthBody, AuthPayload},
@@ -22,14 +21,11 @@ use crate::{
 #[derive(utoipa::OpenApi)]
 #[openapi(
     paths(
-        get_user,
-        get_all_users,
         login,
         register_user,
         delete_user,
         update_user,
         get_me,
-        get_user_by_username
     ),
     components(schemas(
         UserSchema,
@@ -44,62 +40,14 @@ use crate::{
 )]
 pub(super) struct AuthDoc;
 
-pub fn init_users_router(state: AppState) -> Router<AppState> {
+pub(super) fn init_auth_router(state: AppState) -> Router<AppState> {
     let auth_middleware = axum::middleware::from_fn_with_state(state, auth_middleware);
     Router::new()
-        .route("/", get(get_all_users).patch(update_user).layer(auth_middleware.clone()))
-        .route(
-            "/:id",
-            get(get_user)
-                .delete(delete_user)
-                .layer(auth_middleware.clone()),
-        )
+        .route("/", patch(update_user).layer(auth_middleware.clone()))
+        .route("/:id", delete(delete_user).layer(auth_middleware.clone()))
         .route("/login", post(login))
         .route("/register", post(register_user))
         .route("/me", get(get_me).layer(auth_middleware.clone()))
-        .route(
-            "/@:username",
-            get(get_user_by_username).layer(auth_middleware.clone()),
-        )
-}
-
-#[utoipa::path(
-    get,
-    path = "",
-    tag = "auth",
-    responses(
-        (status = 200, description = "Users", body = Vec<UserSchema>)
-    ),
-    security(
-        ("http" = [])
-    )
-)]
-pub async fn get_all_users(State(state): State<AppState>) -> impl IntoResponse {
-    let tasks = state.user_service.find_all_users().await;
-    Json(json!(tasks))
-}
-
-#[utoipa::path(
-    get,
-    path = "/{id}",
-    tag = "auth",
-    responses(
-        (status = 200, description = "User found successfully", body = UserSchema),
-        (status = 404, description = "User not found")
-    ),
-    params(
-        ("id" = Uuid, Path, description = "User id from database")
-    ),
-    security(
-        ("http" = [])
-    )
-)]
-pub async fn get_user(
-    State(state): State<AppState>,
-    Path(id): Path<Uuid>,
-) -> Result<impl IntoResponse, AppError> {
-    let task = state.user_service.find_one_user(&id).await?;
-    Ok(Json(json!(task)))
 }
 
 #[utoipa::path(
@@ -194,34 +142,4 @@ pub async fn update_user(
 )]
 pub async fn get_me(Extension(me): Extension<UserSchema>) -> Result<impl IntoResponse, AppError> {
     Ok(Json(me))
-}
-
-#[utoipa::path(
-    get,
-    path = "/@{username}",
-    tag = "auth",
-    responses(
-        (status = 200, description = "User found", body = UserSchema),
-        (status = 404, description = "User not found")
-    ),
-    params(
-        ("username" = String, Path, description = "User's username")
-    ),
-    security(
-        ("http" = [])
-    )
-)]
-pub async fn get_user_by_username(
-    State(state): State<AppState>,
-    Path(username): Path<String>,
-) -> Result<impl IntoResponse, AppError> {
-    let user = state
-        .user_service
-        .repository
-        .find_one_by_username(&username)
-        .await;
-    if let Some(user) = user {
-        return Ok(Json(UserSchema::from(user)));
-    }
-    return Err(AuthError::UserNotFound.into());
 }

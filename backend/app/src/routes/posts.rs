@@ -125,7 +125,11 @@ pub async fn get_posts_by_username(
     State(state): State<AppState>,
     Path(username): Path<String>,
 ) -> Result<impl IntoResponse, AppError> {
-    let user = state.user_service.repository.find_one_by_username(&username).await;
+    let user = state
+        .user_service
+        .repository
+        .find_one_by_username(&username)
+        .await;
     if user.is_none() {
         return Err(AuthError::UserNotFound.into());
     }

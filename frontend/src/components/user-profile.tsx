@@ -13,25 +13,32 @@ import Post from "@/lib/models/post";
 import User from "@/lib/models/user";
 import { Post as PostCard } from "./post";
 import { useState } from "react";
-import { createPost, getUserPosts } from "@/lib/api";
+import { createPost, follow, getUserPosts, unfollow } from "@/lib/api";
 import useUserContext from "./user-context";
 import { redirect } from "next/navigation";
 import { Alert, AlertTitle } from "./ui/alert";
 
 export function UserProfile({
   author,
+  setAuthor,
   posts,
   setPosts,
+  isFollowed,
+  setIsFollowed,
 }: {
   author: User;
+  setAuthor: any;
   posts: [Post];
   setPosts: any;
+  isFollowed: boolean;
+  setIsFollowed: any;
 }) {
   const { user, setUser } = useUserContext();
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   if (!user) {
+    console.log(user);
     redirect("/login");
   }
 
@@ -48,6 +55,30 @@ export function UserProfile({
     setErrorMessage("");
   }
 
+  async function handleFollow(e: any) {
+    e.preventDefault();
+    if (typeof author.followers !== "number") {
+      return;
+    }
+
+    if (isFollowed) {
+      await unfollow(author.id);
+      setIsFollowed(false);
+      if (author.followers < 1) {
+        author.followers = 0;
+      } else {
+        author.followers -= 1;
+      }
+      setAuthor(author);
+    } else {
+      await follow(author.id);
+      setIsFollowed(true);
+
+      author.followers += 1;
+      setAuthor(author);
+    }
+  }
+
   return (
     <div className="grid md:grid-cols-[300px_1fr] gap-8 max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-col items-center gap-4">
@@ -61,6 +92,17 @@ export function UserProfile({
           <div className="text-2xl font-bold">@{author.username}</div>
           {/* <div className="text-slate-500 dark:text-slate-400">@johndoe</div> */}
           <div className="text-muted-foreground mt-2">{author.about}</div>
+          <div className="text-slate-500 dark:text-slate-400">
+            followers: {author.followers ? author.followers : 0}
+          </div>
+          <div className="text-slate-500 dark:text-slate-400">
+            followings: {author.followings ? author.followings : 0}
+          </div>
+          {user?.id != author.id && (
+            <Button variant={"secondary"} size={"sm"} onClick={handleFollow}>
+              {isFollowed ? "unfollow" : "follow"}
+            </Button>
+          )}
         </div>
       </div>
       <div className="grid gap-6">

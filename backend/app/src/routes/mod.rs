@@ -1,12 +1,17 @@
 mod auth;
 mod posts;
+mod users;
 
 use axum::body::Body;
 use axum::extract::{Request, State};
-use axum::http::{Response, StatusCode};
+use axum::http::{HeaderValue, Response, StatusCode};
 use axum::middleware::Next;
 use axum::response::IntoResponse;
 use axum::{response::Json, routing::get, Router};
+
+use tower::ServiceBuilder;
+use tower_http::cors::Any;
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
 
 use serde_json::json;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
@@ -21,16 +26,19 @@ use crate::{repositories, services, utils, Config};
 
 use crate::schemas::user::UserSchema;
 use crate::utils::auth::decode_token;
+
 use auth::AuthDoc;
 use posts::PostsDoc;
+use users::UsersDoc;
 
 pub async fn init_routers(settings: &Config) -> Router {
     #[derive(OpenApi)]
     #[openapi(
         modifiers(&SecurityAddon),
         nest(
+            (path = "/users", api = UsersDoc),
             (path = "/auth", api = AuthDoc),
-            (path = "/posts", api = PostsDoc)
+            (path = "/posts", api = PostsDoc),
         ),
         components(schemas(
             utils::errors::APIError
@@ -60,6 +68,7 @@ pub async fn init_routers(settings: &Config) -> Router {
 
     let user_repository = repositories::user::UserRepository { pool: pool.clone() };
     let post_repository = repositories::post::PostRepository { pool: pool.clone() };
+    let following_repository = repositories::following::FollowingRepository { pool: pool.clone() };
 
     let user_service = services::user::UserService {
         repository: user_repository,
@@ -67,11 +76,22 @@ pub async fn init_routers(settings: &Config) -> Router {
     let post_service = services::post::PostService {
         repository: post_repository,
     };
+
+    let following_service = services::following::FollowingService {
+        repository: following_repository,
+    };
+
     let state = AppState {
         user_service,
         post_service,
+        following_service,
         config: settings.clone(),
     };
+
+    let origins: [HeaderValue; 2] = [
+        settings.frontend_origin.parse().unwrap(),
+        "http://localhost:3000".parse().unwrap(),
+    ];
 
     Router::new()
         .merge(SwaggerUi::new("/docs").url("/openapi.json", ApiDoc::openapi()))
@@ -80,9 +100,20 @@ pub async fn init_routers(settings: &Config) -> Router {
             "/",
             get(|| async { Json(json!({"message": "Hello world"})) }),
         )
-        .nest("/auth", auth::init_users_router(state.clone()))
+        .nest("/auth", auth::init_auth_router(state.clone()))
         .nest("/posts", posts::init_posts_router(state.clone()))
+        .nest("/users", users::init_users_router(state.clone()))
         .fallback(handler_404)
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .layer(
+                    CorsLayer::new()
+                        .allow_headers(Any)
+                        .allow_methods(Any)
+                        .allow_origin(origins),
+                ),
+        )
         .with_state(state)
 }
 
@@ -104,6 +135,7 @@ pub async fn auth_middleware(
     };
 
     let mut header = auth_header.split_whitespace();
+    tracing::info!("{:?}", header);
     let (_token_type, token) = (header.next(), header.next().ok_or(AuthError::InvalidToken)?);
 
     let token_data = decode_token(token).map_err(|_| AuthError::InvalidToken)?;

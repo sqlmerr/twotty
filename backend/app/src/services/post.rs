@@ -71,5 +71,4 @@ impl PostService {
         self.repository.update(&id, dto).await;
         Ok(())
     }
-
 }

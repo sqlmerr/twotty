@@ -10,6 +10,8 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::ValidationErrors;
 
+pub type Result<T> = std::result::Result<T, AppError>;
+
 #[derive(Debug, ToSchema)]
 pub struct APIError {
     pub message: String,
@@ -62,6 +64,12 @@ pub enum AppError {
     TextTooLong,
     #[error("You don't have permission to do this")]
     CantDoThis,
+    #[error("You're already following this user")]
+    AlreadyFollowed,
+    #[error("You're not following this user")]
+    NotFollowed,
+    #[error("Can't follow yourself")]
+    CantFollowYourself,
     #[error(transparent)]
     ValidationError(#[from] ValidationErrors),
     #[error(transparent)]
@@ -89,7 +97,7 @@ impl IntoResponse for AppError {
                     AuthError::InvalidToken => (StatusCode::BAD_REQUEST, error),
                     AuthError::UsernameAlreadyOccupied => (StatusCode::FORBIDDEN, error),
                     AuthError::UserNotFound => (StatusCode::NOT_FOUND, error),
-                    _ => (StatusCode::FORBIDDEN, error)
+                    _ => (StatusCode::FORBIDDEN, error),
                 }
             }
             Self::CantDoThis => (StatusCode::FORBIDDEN, message),

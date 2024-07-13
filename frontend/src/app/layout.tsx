@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Geologica } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { UserProvider } from "@/components/user-context";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const font = Geologica({ subsets: ["latin"] });
+const font = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Twotty",

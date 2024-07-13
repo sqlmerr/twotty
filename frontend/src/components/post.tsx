@@ -111,8 +111,8 @@ export function Post({
                 )}
               </div>
             ) : (
-              <div className="prose prose-sm text-slate-950 dark:text-slate-50 break-all">
-                <p>{content}</p>
+              <div className="prose prose-sm text-slate-950 dark:text-slate-50 break-all whitespace-pre-line">
+                {content}
               </div>
             )}
             {isEdited && (

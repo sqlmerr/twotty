@@ -1,5 +1,5 @@
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
-use chrono::{Utc, NaiveDateTime};
 
 use crate::schemas::post::PostSchema;
 use serde::{Deserialize, Serialize};
@@ -32,7 +32,7 @@ impl Into<PostSchema> for Post {
             author_id: self.author_id,
             text: self.text,
             created_at: self.created_at,
-            edited: self.edited
+            edited: self.edited,
         }
     }
 }

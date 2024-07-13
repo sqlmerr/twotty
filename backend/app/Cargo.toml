@@ -1,6 +1,6 @@
 [package]
 name = "twotty"
-version = "0.3.3"
+version = "0.4.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,6 +16,7 @@ sqlx = { version = "0.7.4", features = ["runtime-tokio-rustls", "postgres", "uui
 serde = { version = "1.0.198", features = ["derive"] }
 serde_json = "1.0.117"
 tokio = { version = "1.37.0", features = ["full"] }
+
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
@@ -23,6 +24,7 @@ utoipa = { version="5.0.0-alpha.0", features = ["axum_extras", "uuid", "chrono"]
 utoipa-swagger-ui = { version = "7.1.1-alpha.0", features = ["axum"] }
 utoipa-scalar = { version = "0.2.0-alpha.0", features = ["axum"] }
 
+tower-http = { version = "0.5.2", features = ["trace", "cors"] }
 tower = "0.4.13"
 http-body-util = "0.1.1"
 mime = "0.3.17"

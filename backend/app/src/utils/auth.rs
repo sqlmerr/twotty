@@ -16,6 +16,7 @@ pub fn create_token(claims: &Claims) -> Result<String> {
 }
 
 pub fn decode_token(token: &str) -> Result<TokenData<Claims>> {
+    tracing::debug!("toke {}", token);
     decode::<Claims>(token, &KEYS.decoding, &Validation::default())
 }
 

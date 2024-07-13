@@ -46,7 +46,7 @@ impl Repository for PostRepository {
             text: data.text,
             author_id: data.author_id,
             created_at: response.created_at,
-            edited: response.edited
+            edited: response.edited,
         }
     }
 
