@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { UserProvider } from "@/components/user-context";
 import { ThemeProvider } from "@/components/theme-provider";
+import { cn } from "@/lib/utils";
 
 const font = Montserrat({ subsets: ["latin"] });
 
@@ -19,10 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body className={cn(font.className, "dark:bg-zinc-950")}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM \"user\" WHERE username = $1",
+  "query": "SELECT * FROM \"user\" WHERE lower(username) = LOWER($1)",
   "describe": {
     "columns": [
       {
@@ -42,5 +42,5 @@
       false
     ]
   },
-  "hash": "200f77407f56567cdc4cb7fd8dd52e9c5e239028a369fdd39e6e851d659b8a10"
+  "hash": "273f8e36a060985e78df3836c042dd550f31c12c912200cc6a43e72a96c2b92f"
 }

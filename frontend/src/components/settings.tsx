@@ -86,28 +86,28 @@ export function Settings() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="bg-white border-b px-4 md:px-6 h-16 flex items-center justify-between dark:bg-slate-950">
+      <header className="bg-white px-4 md:px-6 h-16 flex items-center justify-between dark:bg-zinc-900">
         <h1 className="text-xl font-semibold">Settings</h1>
       </header>
-      <div className="flex-1 grid grid-cols-[240px_1fr] bg-slate-100 dark:bg-slate-800">
-        <nav className="border-r px-4 py-6 space-y-4">
+      <div className="flex-1 grid grid-cols-[240px_1fr] bg-zinc-100 dark:bg-zinc-900">
+        <nav className="px-4 py-6 space-y-4">
           <Link
-            href="#"
-            className="font-medium text-slate-900 dark:text-slate-50"
+            href="#profile"
+            className="font-medium text-zinc-900 dark:text-zinc-50"
             prefetch={false}
           >
-            Profile
+            <span>Profile</span>
           </Link>
           <Link
-            href="#"
-            className="font-medium text-slate-500 dark:text-slate-400"
+            href="#security"
+            className="font-medium text-zinc-500 dark:text-zinc-400"
             prefetch={false}
           >
-            Security
+            <span>Security</span>
           </Link>
         </nav>
         <div className="p-6 space-y-8">
-          <Card>
+          <Card id="profile">
             <CardHeader>
               <CardTitle>Profile</CardTitle>
               <CardDescription>
@@ -161,7 +161,7 @@ export function Settings() {
               )}
             </CardFooter>
           </Card>
-          <Card>
+          <Card id="security">
             <CardHeader>
               <CardTitle>Security</CardTitle>
               <CardDescription>Manage your account security.</CardDescription>

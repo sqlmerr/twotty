@@ -67,7 +67,7 @@ export function Post({
 
   const time = format(createdAt, "yyyy-MM-dd HH:mm:ss");
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-2x">
       <CardContent className="p-4 md:p-6">
         <div className="flex items-start gap-4">
           <Avatar className="w-10 h-10 border">
@@ -85,7 +85,7 @@ export function Post({
               >
                 @{author.username}
               </Link>
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 <time dateTime={time}>{time}</time>
               </div>
             </div>
@@ -94,6 +94,7 @@ export function Post({
                 <Textarea
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
+                  maxLength={256}
                   className="min-h-[100px]"
                 />
                 <div className="mt-2 flex justify-end gap-2">
@@ -111,12 +112,12 @@ export function Post({
                 )}
               </div>
             ) : (
-              <div className="prose prose-sm text-slate-950 dark:text-slate-50 break-all whitespace-pre-line">
+              <div className="prose prose-sm text-zinc-950 dark:text-zinc-50 break-all whitespace-pre-line">
                 {content}
               </div>
             )}
             {isEdited && (
-              <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                 Edited
               </div>
             )}

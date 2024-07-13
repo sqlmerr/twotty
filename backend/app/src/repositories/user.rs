@@ -113,7 +113,7 @@ impl UserRepository {
     ) -> Option<<UserRepository as Repository>::Model> {
         sqlx::query_as!(
             User,
-            r#"SELECT * FROM "user" WHERE username = $1"#,
+            r#"SELECT * FROM "user" WHERE lower(username) = LOWER($1)"#,
             username
         )
         .fetch_optional(&self.pool)

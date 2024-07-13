@@ -14,17 +14,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Mountain, LogOut, Settings, User as UserIcon } from "lucide-react";
+import {
+  Mountain,
+  LogOut,
+  Settings,
+  User as UserIcon,
+  Moon,
+  Sun,
+} from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import useUserContext from "./user-context";
 import { redirect } from "next/navigation";
 import User from "@/lib/models/user";
+import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
 
 export function Header() {
-  const { user, setUser } = useUserContext();
+  const { user } = useUserContext();
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-white shadow dark:bg-slate-950">
+    <header className="flex items-center justify-between px-4 py-3 top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-white shadow dark:bg-zinc-950 sticky">
       <Link href="/" className="flex items-center gap-2" prefetch={false}>
         <Mountain className="h-6 w-6" />
         <span className="text-lg font-bold">Twotty</span>
@@ -36,6 +45,8 @@ export function Header() {
 }
 
 function HeaderDropdownMenu({ user }: { user: User }) {
+  const { setTheme, theme, systemTheme } = useTheme();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,36 +58,45 @@ function HeaderDropdownMenu({ user }: { user: User }) {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem>
-          <Link
-            href={"/user/" + user.username}
-            className="flex items-center gap-2"
-            prefetch={false}
-          >
-            <UserIcon className="h-4 w-4" />
+        <DropdownMenuItem asChild>
+          <Link href={"/user/" + user.username} prefetch={false}>
+            <UserIcon className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link
-            href="/settings"
-            className="flex items-center gap-2"
-            prefetch={false}
-          >
-            <Settings className="h-4 w-4" />
-            Settings
+        <DropdownMenuItem asChild>
+          <Link href="/settings" prefetch={false}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link
-            href="/logout"
-            className="flex items-center gap-2"
-            prefetch={false}
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
+        <DropdownMenuItem asChild>
+          <Link href={"/logout"} prefetch={false}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            if (!theme || !systemTheme) {
+              setTheme("system");
+            } else if (theme === "light") {
+              setTheme("dark");
+            } else if (theme === "dark") {
+              setTheme("light");
+            } else if (theme === "system") {
+              if (systemTheme === "light") {
+                setTheme("dark");
+              } else {
+                setTheme("light");
+              }
+            }
+          }}
+        >
+          <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="mr-2 absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <span>Change theme</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

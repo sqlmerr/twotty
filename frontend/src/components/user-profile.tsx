@@ -82,7 +82,7 @@ export function UserProfile({
   return (
     <div className="grid md:grid-cols-[300px_1fr] gap-8 max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-col items-center gap-4">
-        <Avatar className="w-24 h-24 dark:border-slate-50">
+        <Avatar className="w-24 h-24 dark:border-zinc-50">
           <AvatarImage
             src={author.avatar ? author.avatar : "/placeholder-user.jpg"}
           />
@@ -90,22 +90,22 @@ export function UserProfile({
         </Avatar>
         <div className="text-center">
           <div className="text-2xl font-bold">@{author.username}</div>
-          {/* <div className="text-slate-500 dark:text-slate-400">@johndoe</div> */}
+          {/* <div className="text-zinc-500 dark:text-zinc-400">@johndoe</div> */}
           <div className="text-muted-foreground mt-2">{author.about}</div>
-          <div className="text-slate-500 dark:text-slate-400">
+          <div className="text-zinc-500 dark:text-zinc-400">
             followers: {author.followers ? author.followers : 0}
           </div>
-          <div className="text-slate-500 dark:text-slate-400">
+          <div className="text-zinc-500 dark:text-zinc-400">
             followings: {author.followings ? author.followings : 0}
           </div>
           {user?.id != author.id && (
-            <Button variant={"secondary"} size={"sm"} onClick={handleFollow}>
+            <Button variant={"secondary"} size={"sm"} onClick={handleFollow} className="m-2">
               {isFollowed ? "unfollow" : "follow"}
             </Button>
           )}
         </div>
       </div>
-      <div className="grid gap-6">
+      <div className="gap-6">
         {errorMessage && (
           <Alert variant={"destructive"}>
             <AlertTitle>{errorMessage}</AlertTitle>
@@ -116,6 +116,7 @@ export function UserProfile({
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              maxLength={256}
               className="p-4 min-h-[100px] rounded-md border focus:border-primary focus:ring-primary"
               placeholder="Write a new post..."
             />
@@ -124,7 +125,7 @@ export function UserProfile({
             </Button>
           </div>
         )}
-        <div className="grid gap-4">
+        <div className="gap-4 my-4 grid">
           {posts.map((post) => {
             return (
               <PostCard

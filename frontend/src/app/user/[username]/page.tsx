@@ -32,8 +32,7 @@ export default function Profile({ params }: { params: { username: string } }) {
     async function getData() {
       const user = await getUser(params.username);
       if (!user) {
-        setError(true);
-        console.log("user: ", user);
+        setError(true);;
         return;
       }
 
